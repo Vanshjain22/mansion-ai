@@ -88,7 +88,7 @@ export function RecentUploads({ onSelectRecent, className }: RecentUploadsProps)
               key={item.id}
               onClick={() => onSelectRecent(item.uploadedFile)}
               className={cn(
-                "group relative flex items-center gap-3 p-2 rounded-xl border border-border-subtle",
+                "group relative flex items-center gap-3 p-2.5 rounded-xl border border-border-subtle",
                 "bg-bg-secondary/60 hover:bg-bg-secondary hover:border-brand-primary/40",
                 "transition-all duration-200 cursor-pointer shadow-sm"
               )}
@@ -109,7 +109,7 @@ export function RecentUploads({ onSelectRecent, className }: RecentUploadsProps)
                 <p className="text-xs font-medium text-text-primary truncate">
                   {item.name}
                 </p>
-                <p className="text-[10px] text-text-tertiary flex items-center gap-2 mt-0.5">
+                <p className="text-[10px] text-text-tertiary flex items-center gap-2 mt-1">
                   <span>{formatFileSize(item.size)}</span>
                   <span>•</span>
                   <span>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>

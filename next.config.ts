@@ -3,13 +3,27 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     // Allow Next.js <Image> to serve images from these sources.
-    // 'blob:' is needed for our instant upload previews (URL.createObjectURL).
-    // In production, add your CDN domain (e.g., "cdn.mansion-ai.com").
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        // Unsplash — used for sample room photos and mock AI outputs
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        // Supabase Storage — uploaded room photos and generated images
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
+      {
+        // Cloudflare AI — generated image outputs
+        protocol: "https",
+        hostname: "*.cloudflare.com",
+      },
+    ],
     dangerouslyAllowSVG: false,
-    unoptimized: false,
+    // Use unoptimized in dev for speed; disable in production
+    unoptimized: process.env.NODE_ENV === "development",
   },
 };
 
 export default nextConfig;
-

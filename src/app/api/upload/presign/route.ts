@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { generateStorageKey } from "@/lib/storage/types";
 import { getLocalStorageProvider } from "@/lib/storage/local";
 import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_SIZE_BYTES } from "@/lib/utils/constants";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
+
+// Dynamic storage provider factory
+function getStorageProvider() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (supabaseUrl && !supabaseUrl.startsWith("your_")) {
+    const { getSupabaseStorageProvider } = require("@/lib/storage/supabase");
+    return getSupabaseStorageProvider();
+  }
+  return getLocalStorageProvider();
+}
 
 /**
  * POST /api/upload/presign
@@ -82,9 +93,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // ── Authentication ──
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in to upload." } },
+        { status: 401 }
+      );
+    }
+
     // ── Generate storage key and presigned URL ──
     const key = generateStorageKey(fileName);
-    const storage = getLocalStorageProvider();
+    const storage = getStorageProvider();
     const { presignedUrl, publicUrl } = await storage.generatePresignedUrl(
       key,
       contentType

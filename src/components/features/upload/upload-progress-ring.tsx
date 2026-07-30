@@ -21,7 +21,7 @@ const statusLabels: Record<string, { title: string; subtitle: string }> = {
   },
   uploading: {
     title: "AI Model Sync",
-    subtitle: "Preparing neural spatial graph...",
+    subtitle: "Uploading to AI engine...",
   },
   success: {
     title: "Analysis Ready",

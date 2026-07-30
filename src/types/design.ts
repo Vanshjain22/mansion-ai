@@ -39,6 +39,8 @@ export interface StyleDefinition {
   promptTemplate: string;
   /** CSS gradient representing this style's aesthetic */
   gradient: string;
+  /** Matching high-res interior design image URL */
+  image: string;
   /** Visual accent color used for the selected state ring */
   accentColor: string;
   tags: string[];
@@ -87,6 +89,8 @@ export type LightingPreference =
 
 export type BudgetRange = "budget" | "moderate" | "premium" | "luxury";
 
+export type FurniturePreference = "keep" | "replace" | "mix";
+
 /**
  * Generic option type for all preference selectors.
  * This is the key to our reusable PreferenceSelector component —
@@ -114,4 +118,7 @@ export interface DesignConfig {
   mood: Mood | null;
   lighting: LightingPreference | null;
   budget: BudgetRange | null;
+  creativityLevel: number;
+  furniturePreference: FurniturePreference | null;
+  negativePrompt: string;
 }

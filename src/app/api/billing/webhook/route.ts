@@ -153,24 +153,44 @@ export async function POST(request: Request) {
 
       case "customer.subscription.updated": {
         // Subscription renewed or changed plans
-        const subscriptionId = session.id;
-        const customerId = session.customer;
-        const status = session.status === "active" ? "active" : "past_due";
+        const customerId = session.customer as string;
+        const status = session.status === "active" ? "active" as const : "past_due" as const;
         const priceId = session.items.data[0].price.id;
+        const userId = session.metadata?.userId;
 
-        // Resolve userId by searching subscription records in db
-        // In local db, we check getSubscription but we would typically lookup by customerId.
-        // Let's implement a clean lookup. We can fetch active subscriptions and update.
-        // Note: For local mock file repository we find subscription by customerId.
-        // Let's make this helper robust.
-        // Since we are mocking database, we'll write a clean update logic.
+        if (userId) {
+          const planConfig = getPlanByPriceId(priceId);
+          const plan = planConfig ? planConfig.id : "free";
+          const credits = planConfig ? planConfig.credits : 0;
+
+          await db.updateSubscription(
+            userId,
+            customerId,
+            session.id,
+            plan as PlanType,
+            status,
+            credits,
+            session.current_period_end * 1000
+          );
+        }
         break;
       }
 
       case "customer.subscription.deleted": {
-        // Subscription cancelled
-        const subscriptionId = session.id;
-        // Mark subscription status as cancelled in our DB
+        // Subscription cancelled — downgrade to free
+        const userId = session.metadata?.userId;
+
+        if (userId) {
+          await db.updateSubscription(
+            userId,
+            session.customer as string,
+            null,
+            "free",
+            "cancelled",
+            0,
+            0
+          );
+        }
         break;
       }
     }

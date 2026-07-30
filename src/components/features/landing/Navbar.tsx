@@ -66,7 +66,7 @@ export function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <Link
-              href="#"
+              href="/login"
               className="px-3 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors font-[family-name:var(--font-manrope)]"
             >
               Log in
@@ -126,13 +126,15 @@ export function Navbar() {
 
           <div className="mt-6 pt-6 border-t border-border-subtle space-y-3">
             <Link
-              href="#"
+              href="/login"
+              onClick={() => setMobileOpen(false)}
               className="block w-full text-center px-4 py-3 text-sm text-text-secondary hover:text-text-primary border border-border-default rounded-lg transition-colors font-[family-name:var(--font-manrope)]"
             >
               Log in
             </Link>
             <Link
               href="/generation-demo"
+              onClick={() => setMobileOpen(false)}
               className="block w-full text-center px-4 py-3 text-sm font-semibold bg-brand-primary text-text-inverse rounded-lg hover:bg-brand-primary-hover transition-colors font-[family-name:var(--font-manrope)]"
             >
               Get Started Free →

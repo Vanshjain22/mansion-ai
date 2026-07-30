@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStripeClient } from "@/lib/stripe/client";
 import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * POST /api/billing/portal
@@ -9,7 +10,14 @@ import { getDesignRepository } from "@/lib/db/local-db";
  */
 export async function POST() {
   try {
-    const userId = "dev-user-123";
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in." } },
+        { status: 401 }
+      );
+    }
+    const userId = user.id;
     const db = getDesignRepository();
     const sub = await db.getSubscription(userId);
 

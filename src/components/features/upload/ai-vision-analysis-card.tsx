@@ -71,7 +71,7 @@ export function AIVisionAnalysisCard({
 
   const rawJsonOutput = JSON.stringify(
     {
-      model: "gpt-4o-vision-spatial-v2",
+      model: "mansionai-room-analysis",
       timestamp: new Date().toISOString(),
       image_filename: file?.name || "room_photo.jpg",
       overall_confidence: data.overallConfidence / 100,
@@ -106,23 +106,23 @@ export function AIVisionAnalysisCard({
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-brand-primary to-cyan-500" />
 
       {/* Header Bar */}
-      <div className="px-5 py-3.5 border-b border-border-subtle bg-bg-tertiary/60 flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2.5">
-          {/* GPT Vision Badge Icon */}
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500/20 via-brand-primary/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center">
+      <div className="px-5 py-4 border-b border-border-subtle bg-bg-tertiary/60 flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          {/* AI Analysis Badge Icon */}
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 via-brand-primary/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
             <span className="text-xs font-bold text-emerald-400">👁️</span>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-xs font-bold font-[family-name:var(--font-outfit)] text-text-primary tracking-wide">
-                GPT-4o Vision • Spatial Analysis
+                AI Room Analysis • Spatial Detection
               </h3>
               <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 {data.overallConfidence}% Confidence
               </span>
             </div>
-            <p className="text-[10px] text-text-tertiary">
+            <p className="text-[10px] text-text-tertiary mt-0.5">
               Automatic room geometry & element detection
             </p>
           </div>
@@ -130,11 +130,11 @@ export function AIVisionAnalysisCard({
 
         {/* Tab Controls & Re-scan */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center p-0.5 rounded-lg bg-bg-primary border border-border-subtle text-[11px]">
+          <div className="flex items-center p-1 rounded-lg bg-bg-primary border border-border-subtle text-[11px]">
             <button
               onClick={() => setActiveTab("analysis")}
               className={cn(
-                "px-2.5 py-1 rounded-md transition-all font-medium",
+                "px-3 py-1 rounded-md transition-all font-medium",
                 activeTab === "analysis"
                   ? "bg-bg-tertiary text-text-primary shadow-sm"
                   : "text-text-tertiary hover:text-text-secondary"
@@ -145,7 +145,7 @@ export function AIVisionAnalysisCard({
             <button
               onClick={() => setActiveTab("json")}
               className={cn(
-                "px-2.5 py-1 rounded-md transition-all font-mono",
+                "px-3 py-1 rounded-md transition-all font-mono",
                 activeTab === "json"
                   ? "bg-bg-tertiary text-emerald-400 shadow-sm"
                   : "text-text-tertiary hover:text-text-secondary"
@@ -170,24 +170,24 @@ export function AIVisionAnalysisCard({
 
       {/* Main Card Content */}
       {activeTab === "analysis" ? (
-        <div className="p-5 space-y-5">
+        <div className="p-5 sm:p-6 space-y-6">
           {/* Scanning Progress Overlay (if rescanning) */}
           {isScanning && (
-            <div className="p-3 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-xs text-brand-primary flex items-center justify-center gap-2 animate-pulse">
+            <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-xs text-brand-primary flex items-center justify-center gap-2 animate-pulse">
               <span className="w-2 h-2 rounded-full bg-brand-primary animate-ping" />
-              <span>Scanning room feature vectors with GPT Vision...</span>
+              <span>Analyzing room elements and features...</span>
             </div>
           )}
 
           {/* Key Attribute Cards (Top Grid) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {/* 1. Room Type */}
-            <div className="p-3 rounded-xl bg-bg-tertiary/50 border border-border-subtle hover:border-brand-primary/30 transition-colors">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-text-tertiary block mb-1">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-bg-tertiary/50 border border-border-subtle hover:border-brand-primary/30 transition-colors">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-text-tertiary block mb-1.5">
                 Room Type
               </span>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-text-primary">
+                <span className="text-sm font-semibold text-text-primary flex items-center gap-1.5">
                   🛋️ {data.roomType}
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
@@ -197,12 +197,12 @@ export function AIVisionAnalysisCard({
             </div>
 
             {/* 2. Layout Complexity */}
-            <div className="p-3 rounded-xl bg-bg-tertiary/50 border border-border-subtle hover:border-brand-primary/30 transition-colors">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-text-tertiary block mb-1">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-bg-tertiary/50 border border-border-subtle hover:border-brand-primary/30 transition-colors">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-text-tertiary block mb-1.5">
                 Layout Complexity
               </span>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-text-primary">
+                <span className="text-sm font-semibold text-text-primary flex items-center gap-1.5">
                   📐 {data.layoutComplexity}
                 </span>
                 {/* 5-bar meter */}
@@ -321,7 +321,7 @@ export function AIVisionAnalysisCard({
         <div className="p-4 bg-bg-primary">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-mono text-emerald-400">
-              // OpenAI Vision API JSON Payload
+              // AI Analysis JSON Payload
             </span>
             <span className="text-[10px] font-mono text-text-tertiary">
               application/json

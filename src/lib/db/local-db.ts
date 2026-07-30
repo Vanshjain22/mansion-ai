@@ -485,7 +485,15 @@ let repoInstance: DesignRepository | null = null;
 
 export function getDesignRepository(): DesignRepository {
   if (!repoInstance) {
-    repoInstance = new LocalDesignRepository();
+    // Use Supabase when configured, fallback to local JSON for dev
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl && !supabaseUrl.startsWith("your_")) {
+      // Dynamic import to avoid loading Supabase client when not needed
+      const { SupabaseDesignRepository } = require("./supabase-db");
+      repoInstance = new SupabaseDesignRepository();
+    } else {
+      repoInstance = new LocalDesignRepository();
+    }
   }
-  return repoInstance;
+  return repoInstance!;
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStripeClient, PLANS } from "@/lib/stripe/client";
 import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * POST /api/billing/checkout
@@ -27,8 +28,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const userId = "dev-user-123"; // Resolve from session in production
-    const email = "test-user@mansion-ai.com";
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in." } },
+        { status: 401 }
+      );
+    }
+    const userId = user.id;
+    const email = user.email || "";
 
     const db = getDesignRepository();
     const sub = await db.getSubscription(userId);

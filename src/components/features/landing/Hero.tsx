@@ -14,6 +14,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
+import { DemoVideoModal } from "./DemoVideoModal";
 
 const HERO_STATS = [
   { icon: Clock, value: "30 sec", label: "Average Time" },
@@ -25,6 +26,7 @@ const HERO_STATS = [
 export function Hero() {
   const [sliderPos, setSliderPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const updateSlider = useCallback(
@@ -82,6 +84,12 @@ export function Hero() {
       id="hero"
       className="relative pt-24 lg:pt-32 pb-16 lg:pb-24 overflow-hidden"
     >
+      {/* Demo Video Modal */}
+      <DemoVideoModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+      />
+
       {/* Ambient Background Glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px]" />
@@ -124,9 +132,13 @@ export function Hero() {
                 <Upload className="w-4 h-4" />
                 Upload Your Room
               </Link>
-              <button className="inline-flex items-center gap-2 px-6 py-3.5 border border-border-default text-text-primary font-medium font-[family-name:var(--font-manrope)] text-sm rounded-xl hover:bg-bg-tertiary hover:border-border-strong transition-all duration-300 glass">
-                <div className="w-5 h-5 rounded-full border border-text-secondary/40 flex items-center justify-center">
-                  <Play className="w-2.5 h-2.5 text-text-secondary ml-0.5" />
+              <button
+                type="button"
+                onClick={() => setIsDemoModalOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3.5 border border-border-default text-text-primary font-medium font-[family-name:var(--font-manrope)] text-sm rounded-xl hover:bg-bg-tertiary hover:border-border-strong transition-all duration-300 glass focus-ring"
+              >
+                <div className="w-5 h-5 rounded-full border border-text-secondary/40 flex items-center justify-center bg-brand-primary/10">
+                  <Play className="w-2.5 h-2.5 text-brand-primary ml-0.5 fill-current" />
                 </div>
                 Watch Demo
               </button>
@@ -287,42 +299,6 @@ export function Hero() {
                     </div>
                   </div>
 
-                  {/* ── Floating Badge: AI Processing ── */}
-                  <div className="absolute bottom-16 left-4 z-10 animate-float">
-                    <div className="px-3 py-2 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-brand-primary/20 flex items-center justify-center">
-                        <Zap className="w-3.5 h-3.5 text-brand-primary" />
-                      </div>
-                      <div>
-                        <div className="text-[10px] text-white/60 font-[family-name:var(--font-manrope)]">
-                          AI Processing
-                        </div>
-                        <div className="text-xs font-bold text-white font-[family-name:var(--font-manrope)]">
-                          &lt; 30 seconds
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── Floating Badge: Quality ── */}
-                  <div
-                    className="absolute bottom-16 right-4 z-10 animate-float"
-                    style={{ animationDelay: "1.5s" }}
-                  >
-                    <div className="px-3 py-2 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                        <MonitorCheck className="w-3.5 h-3.5 text-emerald-400" />
-                      </div>
-                      <div>
-                        <div className="text-[10px] text-white/60 font-[family-name:var(--font-manrope)]">
-                          Output Quality
-                        </div>
-                        <div className="text-xs font-bold text-white font-[family-name:var(--font-manrope)]">
-                          4K Ultra HD
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* ── Stats Strip ── */}

@@ -73,7 +73,7 @@ export function PromptInput() {
         }}
         placeholder="Describe any specific changes you'd like... (e.g., 'Add more plants and use warm lighting')"
         className={cn(
-          "min-h-[100px] resize-none",
+          "min-h-[100px] resize-none p-3.5 text-sm leading-relaxed",
           "bg-bg-tertiary/50 border-border-default text-text-primary",
           "placeholder:text-text-tertiary",
           "focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
@@ -82,9 +82,9 @@ export function PromptInput() {
       />
 
       {/* AI Suggestion Chips */}
-      <div id="prompt-suggestions">
-        <p className="text-xs text-text-tertiary mb-2">
-          ✨ Quick suggestions — click to add:
+      <div id="prompt-suggestions" className="space-y-2">
+        <p className="text-xs text-text-tertiary font-medium flex items-center gap-1.5">
+          <span>✨</span> Quick suggestions — click to add:
         </p>
         <div className="flex flex-wrap gap-2">
           {PROMPT_SUGGESTIONS.map((suggestion) => (
@@ -94,7 +94,7 @@ export function PromptInput() {
               onClick={() => handleSuggestionClick(suggestion)}
               disabled={isAtLimit}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium",
                 "bg-bg-tertiary hover:bg-bg-elevated text-text-secondary hover:text-text-primary",
                 "border border-border-subtle hover:border-border-default",
                 "transition-all duration-150",

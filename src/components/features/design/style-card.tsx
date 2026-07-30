@@ -80,8 +80,8 @@ export function StyleCard({ style, isSelected, onSelect }: StyleCardProps) {
       </div>
 
       {/* Card content */}
-      <div className="p-3 bg-bg-secondary">
-        <p className="text-text-secondary text-sm leading-relaxed line-clamp-2 mb-2">
+      <div className="p-3.5 bg-bg-secondary">
+        <p className="text-text-secondary text-sm leading-relaxed line-clamp-2 mb-3">
           {style.description}
         </p>
 
@@ -91,7 +91,7 @@ export function StyleCard({ style, isSelected, onSelect }: StyleCardProps) {
             <Badge
               key={tag}
               variant="secondary"
-              className="text-[10px] px-2 py-0 bg-bg-tertiary text-text-tertiary border-none"
+              className="text-[10px] px-2 py-0.5 bg-bg-tertiary text-text-tertiary border-none font-medium"
             >
               {tag}
             </Badge>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * GET /api/billing/usage
@@ -24,7 +25,14 @@ import { getDesignRepository } from "@/lib/db/local-db";
  */
 export async function GET() {
   try {
-    const userId = "dev-user-123"; // Resolved from session in production
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in." } },
+        { status: 401 }
+      );
+    }
+    const userId = user.id;
     const db = getDesignRepository();
 
     // 1. Fetch data from DB

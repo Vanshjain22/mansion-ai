@@ -296,16 +296,16 @@ export function Dropzone({
             </p>
 
             {/* Supported Formats Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 mb-2">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
               {["JPG", "PNG", "WEBP", "HEIC"].map((fmt) => (
                 <span
                   key={fmt}
-                  className="px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-bg-tertiary/80 text-text-secondary border border-border-subtle"
+                  className="px-2.5 py-1 rounded-md text-[10px] font-mono font-medium bg-bg-tertiary/80 text-text-secondary border border-border-subtle"
                 >
                   {fmt}
                 </span>
               ))}
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+              <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-medium bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
                 Max 10MB
               </span>
             </div>

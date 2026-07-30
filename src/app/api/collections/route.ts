@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * GET /api/collections
@@ -7,7 +8,14 @@ import { getDesignRepository } from "@/lib/db/local-db";
  */
 export async function GET() {
   try {
-    const userId = "dev-user-123";
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in." } },
+        { status: 401 }
+      );
+    }
+    const userId = user.id;
     const db = getDesignRepository();
     const collections = await db.getCollections(userId);
 
@@ -36,7 +44,14 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
-    const userId = "dev-user-123";
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in." } },
+        { status: 401 }
+      );
+    }
+    const userId = user.id;
     const body = await request.json().catch(() => ({}));
     const { name } = body;
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDesignRepository } from "@/lib/db/local-db";
 import { jobQueue } from "@/lib/queue/job-queue";
 import { ROOM_TYPES, STYLE_PRESETS } from "@/lib/utils/constants";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * POST /api/designs/generate
@@ -123,7 +124,15 @@ export async function POST(request: Request) {
     }
 
     // ── Database Entry ──
-    const userId = "dev-user-123"; // In production, resolve this from next-auth session
+    // ── Authentication ──
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Please sign in to generate designs." } },
+        { status: 401 }
+      );
+    }
+    const userId = user.id;
     const db = getDesignRepository();
 
     // Deduct 1 credit per generation request

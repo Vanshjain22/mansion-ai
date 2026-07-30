@@ -77,12 +77,12 @@ export function PreferenceSelector<T extends string>({
               aria-checked={isSelected}
               onClick={() => handleSelect(option.value)}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg",
+                "flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg",
                 "text-sm text-left transition-all duration-200",
                 "outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
                 "focus-visible:ring-offset-1 focus-visible:ring-offset-bg-primary",
                 isSelected
-                  ? "bg-brand-primary/15 border border-brand-primary/40 text-text-primary"
+                  ? "bg-brand-primary/15 border border-brand-primary/40 text-text-primary font-medium"
                   : "bg-bg-tertiary/50 border border-border-subtle text-text-secondary hover:bg-bg-tertiary hover:border-border-default"
               )}
             >
@@ -107,7 +107,7 @@ export function PreferenceSelector<T extends string>({
               aria-checked={isSelected}
               onClick={() => handleSelect(option.value)}
               className={cn(
-                "flex flex-col items-center gap-1.5 p-3 rounded-xl",
+                "flex flex-col items-center gap-2 p-3.5 rounded-xl",
                 "text-center transition-all duration-200",
                 "outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
                 "focus-visible:ring-offset-1 focus-visible:ring-offset-bg-primary",
@@ -116,12 +116,12 @@ export function PreferenceSelector<T extends string>({
                   : "bg-bg-tertiary/50 border-2 border-border-subtle text-text-secondary hover:bg-bg-tertiary hover:border-border-default"
               )}
             >
-              <span className="text-2xl" aria-hidden="true">
+              <span className="text-2xl mb-0.5" aria-hidden="true">
                 {option.icon}
               </span>
-              <span className="text-xs font-medium">{option.label}</span>
+              <span className="text-xs font-semibold tracking-tight">{option.label}</span>
               {option.description && (
-                <span className="text-[10px] text-text-tertiary leading-tight">
+                <span className="text-[10px] text-text-tertiary leading-normal mt-0.5">
                   {option.description}
                 </span>
               )}

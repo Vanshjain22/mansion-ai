@@ -92,9 +92,9 @@ export function DesignSidebar() {
 
       {/* Selected style summary */}
       {selectedStyleDef && (
-        <div className="p-3 rounded-xl bg-brand-primary/10 border border-brand-primary/20">
-          <p className="text-xs text-text-tertiary mb-1">Selected style</p>
-          <p className="text-sm font-medium text-text-primary">
+        <div className="p-3.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20">
+          <p className="text-xs text-text-tertiary mb-0.5 font-medium">Selected style</p>
+          <p className="text-sm font-semibold text-text-primary tracking-tight">
             {selectedStyleDef.name}
           </p>
         </div>

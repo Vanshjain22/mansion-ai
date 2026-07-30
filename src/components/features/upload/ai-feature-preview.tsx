@@ -48,24 +48,24 @@ export function AIFeaturePreview({ className }: AIFeaturePreviewProps) {
           </span>
         </div>
         <span className="text-[10px] font-mono text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full border border-brand-primary/20">
-          Neural Vision 4.0
+          Active
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2.5">
         {AI_FEATURES.map((feat) => (
           <div
             key={feat.title}
-            className="flex items-start gap-2 p-2 rounded-lg bg-bg-tertiary/60 border border-border-subtle/50 hover:border-brand-primary/30 transition-colors"
+            className="flex items-start gap-2.5 p-2.5 rounded-lg bg-bg-tertiary/60 border border-border-subtle/50 hover:border-brand-primary/30 transition-colors"
           >
-            <span className="text-sm p-1 rounded-md bg-bg-elevated border border-border-subtle">
+            <span className="text-sm p-1.5 rounded-md bg-bg-elevated border border-border-subtle shrink-0">
               {feat.icon}
             </span>
             <div className="min-w-0">
-              <p className="text-[11px] font-medium text-text-primary truncate">
+              <p className="text-[11px] font-semibold text-text-primary truncate">
                 {feat.title}
               </p>
-              <p className="text-[10px] text-text-tertiary truncate">
+              <p className="text-[10px] text-text-tertiary truncate mt-0.5">
                 {feat.desc}
               </p>
             </div>
