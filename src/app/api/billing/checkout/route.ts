@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { getStripeClient, PLANS } from "@/lib/stripe/client";
+import {
+  getPlanByPriceId,
+  getStripeClient,
+  isMockBillingEnabled,
+  isStripeConfigured,
+} from "@/lib/stripe/client";
 import { getDesignRepository } from "@/lib/db/local-db";
 import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
@@ -28,6 +33,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const plan = getPlanByPriceId(priceId);
+    if (!plan || plan.id === "free") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { code: "INVALID_PRICE", message: "The requested plan is not available." },
+        },
+        { status: 400 }
+      );
+    }
+
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json(
@@ -45,10 +61,7 @@ export async function POST(request: Request) {
     const successUrl = `${appUrl}/billing?success=true`;
     const cancelUrl = `${appUrl}/pricing?cancelled=true`;
 
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
-    const isMock = !stripeKey || stripeKey.startsWith("sk_test_mock");
-
-    if (isMock) {
+    if (isMockBillingEnabled()) {
       // ── MOCK GATEWAY CONTEXT (Development) ──
       // Generate a mock checkout completion URL pointing to our webhook endpoint
       // This simulates a successful redirect, crediting the local account instantly!
@@ -65,11 +78,20 @@ export async function POST(request: Request) {
       });
     }
 
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { code: "BILLING_UNAVAILABLE", message: "Billing is not configured." },
+        },
+        { status: 503 }
+      );
+    }
+
     // ── STRIPE LIVE GATEWAY CONTEXT ──
     const stripe = getStripeClient();
 
     // Determine checkout mode (subscription vs one-time credit payments)
-    const isSubscription = priceId.startsWith("price_"); // price_ ID implies plan subscription
     const stripeCustomerId = sub?.stripeCustomerId || undefined;
 
     const session = await stripe.checkout.sessions.create({
@@ -82,7 +104,7 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      mode: isSubscription ? "subscription" : "payment",
+      mode: "subscription",
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {

@@ -68,17 +68,24 @@ export const PLANS: Record<string, PlanConfig> = {
   },
 };
 
+/** Mock billing is strictly for local development and is never available in production. */
+export function isMockBillingEnabled(): boolean {
+  return process.env.NODE_ENV !== "production" && !process.env.STRIPE_SECRET_KEY;
+}
+
+export function isStripeConfigured(): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
 /**
  * Initialize Stripe instance.
  * Throws a helpful warning instead of crashing if keys are missing.
  */
 export function getStripeClient(): Stripe {
-  const secretKey = process.env.STRIPE_SECRET_KEY || "sk_test_mock_stripe_secret_key_for_onboarding";
-  
-  if (secretKey.startsWith("sk_test_mock")) {
-    console.warn(
-      "STRIPE_SECRET_KEY is missing. Operating under mock payment gateway context."
-    );
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY must be configured before Stripe can be used.");
   }
 
   return new Stripe(secretKey, {

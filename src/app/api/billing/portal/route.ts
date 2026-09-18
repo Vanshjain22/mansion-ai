@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getStripeClient } from "@/lib/stripe/client";
+import { getStripeClient, isMockBillingEnabled, isStripeConfigured } from "@/lib/stripe/client";
 import { getDesignRepository } from "@/lib/db/local-db";
 import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
@@ -24,15 +24,26 @@ export async function POST() {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const returnUrl = `${appUrl}/billing`;
 
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
-    const isMock = !stripeKey || stripeKey.startsWith("sk_test_mock");
-
-    if (isMock || !sub?.stripeCustomerId) {
+    if (isMockBillingEnabled()) {
       // In mock development, redirect immediately back with a notification
       return NextResponse.json({
         success: true,
         url: `${returnUrl}?portal_mock=true`,
       });
+    }
+
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        { success: false, error: { code: "BILLING_UNAVAILABLE", message: "Billing is not configured." } },
+        { status: 503 }
+      );
+    }
+
+    if (!sub?.stripeCustomerId) {
+      return NextResponse.json(
+        { success: false, error: { code: "NO_SUBSCRIPTION", message: "No active subscription was found." } },
+        { status: 404 }
+      );
     }
 
     const stripe = getStripeClient();

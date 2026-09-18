@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+MansionAI is an AI-powered interior-design application built with Next.js, Supabase, Stripe, and configurable AI image-generation providers.
 
 ## Getting Started
 
@@ -16,7 +16,23 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Before running locally, copy `.env.example` to `.env.local` and fill in the services you want to use. `AI_PROVIDER=mock` works without an AI-provider account.
+
+## Quality checks
+
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
+The GitHub Actions workflow runs these checks for pull requests and pushes to `main`.
+
+## Production readiness
+
+Production image generation uses Upstash QStash. Copy `QSTASH_TOKEN`, `QSTASH_CURRENT_SIGNING_KEY`, and `QSTASH_NEXT_SIGNING_KEY` from the QStash dashboard, then set `NEXT_PUBLIC_APP_URL` to the deployed HTTPS URL. The `/api/queue/generate` callback validates the QStash signature before processing and retries failed deliveries up to three times.
+
+Baseline browser security headers are configured in `next.config.ts`. Add a Content Security Policy only after inventorying the final analytics, monitoring, and AI-provider domains, so it protects the app without breaking legitimate traffic.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

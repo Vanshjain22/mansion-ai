@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifySignature, getLocalStorageProvider } from "@/lib/storage/local";
+import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_SIZE_BYTES } from "@/lib/utils/constants";
 
 /**
  * PUT /api/upload/store
@@ -24,6 +25,10 @@ import { verifySignature, getLocalStorageProvider } from "@/lib/storage/local";
  */
 export async function PUT(request: Request) {
   try {
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json({ success: false, error: { code: "NOT_FOUND" } }, { status: 404 });
+    }
+
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key");
     const contentType = searchParams.get("contentType");
@@ -41,6 +46,13 @@ export async function PUT(request: Request) {
           },
         },
         { status: 400 }
+      );
+    }
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(contentType as (typeof ACCEPTED_IMAGE_TYPES)[number])) {
+      return NextResponse.json(
+        { success: false, error: { code: "INVALID_TYPE", message: "Unsupported upload content type." } },
+        { status: 415 }
       );
     }
 
@@ -86,6 +98,13 @@ export async function PUT(request: Request) {
           error: { code: "EMPTY_FILE", message: "No file data received." },
         },
         { status: 400 }
+      );
+    }
+
+    if (buffer.length > MAX_UPLOAD_SIZE_BYTES) {
+      return NextResponse.json(
+        { success: false, error: { code: "FILE_TOO_LARGE", message: "The uploaded file exceeds the size limit." } },
+        { status: 413 }
       );
     }
 

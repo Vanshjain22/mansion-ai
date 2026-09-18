@@ -28,6 +28,9 @@ export function getAIProvider(): AIProvider {
     if (accountId && apiToken) {
       activeProviderInstance = new CloudflareAIProvider(accountId, apiToken);
     } else {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Cloudflare AI credentials must be configured in production.");
+      }
       console.warn(
         "CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_AI_API_TOKEN is missing. Falling back to MockAIProvider."
       );
@@ -42,12 +45,21 @@ export function getAIProvider(): AIProvider {
     if (replicateKey) {
       activeProviderInstance = new ReplicateAIProvider(replicateKey, replicateModel);
     } else {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Replicate credentials must be configured in production.");
+      }
       console.warn(
         "REPLICATE_API_KEY is missing. Falling back to MockAIProvider."
       );
       activeProviderInstance = new MockAIProvider();
     }
   } else {
+    if (providerType !== "mock") {
+      throw new Error(`Unsupported AI_PROVIDER value: ${providerType}`);
+    }
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("AI_PROVIDER=mock cannot be used in production.");
+    }
     activeProviderInstance = new MockAIProvider();
   }
 

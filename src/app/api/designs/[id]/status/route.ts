@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { jobQueue } from "@/lib/queue/job-queue";
 import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * GET /api/designs/[id]/status
@@ -27,64 +27,48 @@ export async function GET(
 ) {
   try {
     const { id: designId } = await props.params;
-    const { searchParams } = new URL(request.url);
-    const jobId = searchParams.get("jobId");
-
-    if (!jobId) {
+    const user = await getAuthUser();
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: "MISSING_PARAMETER",
-            message: "jobId query parameter is required.",
+            code: "UNAUTHORIZED",
+            message: "Please sign in to view generation status.",
           },
         },
-        { status: 400 }
+        { status: 401 }
       );
     }
 
-    // 1. Check current state in queue (high priority)
-    const job = await jobQueue.getJob(jobId);
-    if (!job) {
+    // The database is the source of truth in production because QStash jobs
+    // are intentionally not kept in per-instance process memory.
+    const db = getDesignRepository();
+    const designRecord = await db.getDesign(designId);
+    if (!designRecord || designRecord.userId !== user.id) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: "JOB_NOT_FOUND",
-            message: `Job ${jobId} was not found in active memory.`,
+            code: "NOT_FOUND",
+            message: "Design was not found.",
           },
         },
         { status: 404 }
       );
     }
 
-    // Double check that jobId maps to this designId
-    if (job.designId !== designId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Job ID does not match this design resource.",
-          },
-        },
-        { status: 403 }
-      );
-    }
-
-    // 2. Fetch latest record from the database to see variations on complete
-    const db = getDesignRepository();
-    const designRecord = await db.getDesign(designId);
+    const progress =
+      designRecord.status === "completed" ? 100 : designRecord.status === "processing" ? 50 : 0;
 
     return NextResponse.json({
       success: true,
       data: {
         designId,
-        jobId,
-        status: job.status,
-        progress: job.progress,
-        error: job.error || null,
-        variations: designRecord?.variations || [],
+        status: designRecord.status,
+        progress,
+        error: designRecord.errorMessage || null,
+        variations: designRecord.variations,
       },
     });
   } catch (error) {

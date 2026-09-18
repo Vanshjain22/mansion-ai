@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getStripeClient, getPlanByPriceId, PLANS } from "@/lib/stripe/client";
+import { getStripeClient, getPlanByPriceId, isMockBillingEnabled, PLANS } from "@/lib/stripe/client";
 import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 import type { PlanType } from "@/types/billing";
 
 /**
@@ -17,22 +18,25 @@ export async function GET(request: Request) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  if (mockCompleted === "true" && priceId && userId) {
+  if (!isMockBillingEnabled()) {
+    return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+  }
+
+  const user = await getAuthUser();
+  if (!user || user.id !== userId) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const plan = priceId ? getPlanByPriceId(priceId) : undefined;
+  if (mockCompleted === "true" && priceId && userId && plan && plan.id !== "free") {
     const db = getDesignRepository();
 
     // Determine plan type by matching price ID
     let matchedPlan: PlanType = "free";
     let creditBonus = 0;
 
-    if (priceId.includes("pro")) {
-      matchedPlan = "pro";
-      creditBonus = PLANS.pro.credits;
-    } else if (priceId.includes("business")) {
-      matchedPlan = "business";
-      creditBonus = PLANS.business.credits;
-    } else if (priceId === "credits_pack_20") {
-      creditBonus = 20;
-    }
+    matchedPlan = plan.id;
+    creditBonus = plan.credits;
 
     // 1. Grant subscription plan details
     if (matchedPlan !== "free") {

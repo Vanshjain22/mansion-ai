@@ -1,5 +1,7 @@
 import { getAIProvider } from "../ai/factory";
+import type { AIGenerationInput } from "../ai/types";
 import { getDesignRepository } from "../db/local-db";
+import { enqueueDesignGeneration, isQStashConfigured } from "./qstash";
 
 /**
  * IN-MEMORY BACKGROUND JOB QUEUE (Development / Testing)
@@ -44,6 +46,13 @@ export class InMemoryJobQueue {
    * Runs the task processing asynchronously so it doesn't block the API caller.
    */
   async addJob(designId: string, userId: string): Promise<string> {
+    if (isQStashConfigured()) {
+      return enqueueDesignGeneration({ designId, userId });
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("QStash must be configured before enqueuing production generation jobs.");
+    }
     const jobId = `job_${Math.random().toString(36).substring(2, 9)}`;
     const newJob: DesignJob = {
       id: jobId,
@@ -133,13 +142,13 @@ export class InMemoryJobQueue {
       // 2. Submit the job to the AI Provider
       const providerJobId = await provider.submitJob({
         originalImageUrl: design.originalImageUrl,
-        roomType: design.roomType as any,
-        styleId: design.styleId as any,
+        roomType: design.roomType as AIGenerationInput["roomType"],
+        styleId: design.styleId as AIGenerationInput["styleId"],
         customPrompt: design.customPrompt || undefined,
-        colorPalette: design.colorPalette as any,
-        mood: design.mood as any,
-        lighting: design.lighting as any,
-        budget: design.budget as any,
+        colorPalette: design.colorPalette as AIGenerationInput["colorPalette"],
+        mood: design.mood as AIGenerationInput["mood"],
+        lighting: design.lighting as AIGenerationInput["lighting"],
+        budget: design.budget as AIGenerationInput["budget"],
       });
 
       // Track provider specific job ID
@@ -195,7 +204,7 @@ export class InMemoryJobQueue {
     }
   }
 
-  private handleWorkerFailure(jobId: string, error: any): void {
+  private handleWorkerFailure(jobId: string, error: unknown): void {
     const job = this.jobs.get(jobId);
     if (!job || job.status === "cancelled") return;
 
@@ -211,6 +220,15 @@ export class InMemoryJobQueue {
 
     console.error(`[QUEUE] Job ${jobId} failed:`, error);
   }
+}
+
+/**
+ * The current queue exists only for local development. Serverless production
+ * instances can stop between requests, so this queue cannot guarantee a job
+ * will run. Keep this explicit until a durable queue adapter is configured.
+ */
+export function isDurableJobQueue(): boolean {
+  return isQStashConfigured();
 }
 
 // Global queue singleton instance (preserves state across HMR file reloads in Next.js dev)

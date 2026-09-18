@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { jobQueue } from "@/lib/queue/job-queue";
+import { getDesignRepository } from "@/lib/db/local-db";
+import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
 /**
  * POST /api/designs/[id]/cancel
@@ -23,51 +24,52 @@ export async function POST(
 ) {
   try {
     const { id: designId } = await props.params;
-    const body = await request.json().catch(() => ({}));
-    const { jobId } = body;
-
-    if (!jobId) {
+    const user = await getAuthUser();
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: "MISSING_PARAMETER",
-            message: "jobId is required in request body.",
+            code: "UNAUTHORIZED",
+            message: "Please sign in to cancel a generation.",
           },
         },
-        { status: 400 }
+        { status: 401 }
       );
     }
 
-    const job = await jobQueue.getJob(jobId);
-    if (!job) {
+    const db = getDesignRepository();
+    const design = await db.getDesign(designId);
+    if (!design || design.userId !== user.id) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: "JOB_NOT_FOUND",
-            message: "Job was not found.",
+            code: "NOT_FOUND",
+            message: "Design was not found.",
           },
         },
         { status: 404 }
       );
     }
 
-    if (job.designId !== designId) {
+    if (design.status === "completed") {
       return NextResponse.json(
         {
           success: false,
           error: {
-            code: "UNAUTHORIZED",
-            message: "Job ID does not match this design resource.",
+            code: "ALREADY_COMPLETED",
+            message: "Completed generations cannot be cancelled.",
           },
         },
-        { status: 403 }
+        { status: 409 }
       );
     }
 
-    // Trigger cancellation in queue context
-    await jobQueue.cancelJob(jobId);
+    // The worker checks this persisted marker before and during provider polling.
+    await db.updateDesignStatus(designId, "failed", {
+      errorMessage: "Generation cancelled by user.",
+    });
 
     return NextResponse.json({
       success: true,

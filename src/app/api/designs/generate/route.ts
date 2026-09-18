@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDesignRepository } from "@/lib/db/local-db";
-import { jobQueue } from "@/lib/queue/job-queue";
+import { isDurableJobQueue, jobQueue } from "@/lib/queue/job-queue";
+import { getAIProvider } from "@/lib/ai/factory";
 import { ROOM_TYPES, STYLE_PRESETS } from "@/lib/utils/constants";
 import { getAuthUser } from "@/lib/supabase/auth-helpers";
 
@@ -133,6 +134,24 @@ export async function POST(request: Request) {
       );
     }
     const userId = user.id;
+
+    // Do not accept paid work that cannot be safely processed. The local queue
+    // is intentionally development-only and does not survive server restarts.
+    if (process.env.NODE_ENV === "production" && !isDurableJobQueue()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "GENERATION_UNAVAILABLE",
+            message: "Image generation is temporarily unavailable.",
+          },
+        },
+        { status: 503 }
+      );
+    }
+
+    // Validate the provider before deducting a credit.
+    getAIProvider();
     const db = getDesignRepository();
 
     // Deduct 1 credit per generation request
